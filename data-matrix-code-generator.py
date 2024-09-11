@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+from qrcodegen import QrCode
 from PIL import Image, ImageTk
-from datamatrix import DataMatrix
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import time
@@ -29,19 +29,25 @@ def generate_code():
     # Display the generated number in the app
     number_label.config(text=f"PN: {user_input_1}\nSN: {unique_8_digit}")
 
-    # Generate Data Matrix code with datamatrix
-    data_matrix = DataMatrix(final_number)
-    image = data_matrix.render()
+    # Generate Data Matrix code with qrcodegen
+    qr = QrCode.encode_text(final_number, QrCode.Ecc.MEDIUM)
 
     # Convert the Data Matrix code to a PIL image
-    data_matrix_image_tk = ImageTk.PhotoImage(image)
-    
+    qr_image = qr.to_image(10)  # Create a high-resolution image
+    image_io = io.BytesIO()
+    qr_image.save(image_io, 'PNG')
+    image_io.seek(0)
+
+    # Convert to an image that Tkinter can use
+    pil_image = Image.open(image_io)
+    data_matrix_image_tk = ImageTk.PhotoImage(pil_image)
+
     # Display the data matrix in the GUI
     barcode_label.config(image=data_matrix_image_tk)
     barcode_label.image = data_matrix_image_tk
     
     # Generate PDF for printing (optional)
-    generate_pdf(image, user_input_1, unique_8_digit)
+    generate_pdf(pil_image, user_input_1, unique_8_digit)
 
 def generate_pdf(image, pn, sn):
     c = canvas.Canvas("data_matrix_print.pdf", pagesize=letter)
