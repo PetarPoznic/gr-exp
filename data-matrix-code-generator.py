@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from qrcodegen import QrCode
+from barcode.writer import ImageWriter
+from barcode import generate
 from PIL import Image, ImageTk
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -29,17 +30,13 @@ def generate_code():
     # Display the generated number in the app
     number_label.config(text=f"PN: {user_input_1}\nSN: {unique_8_digit}")
 
-    # Generate Data Matrix code with qrcodegen
-    qr = QrCode.encode_text(final_number, QrCode.Ecc.MEDIUM)
+    # Generate Data Matrix code using python-barcode
+    output = io.BytesIO()
+    generate('datamatrix', final_number, writer=ImageWriter(), output=output)
 
     # Convert the Data Matrix code to a PIL image
-    qr_image = qr.to_image(10)  # Create a high-resolution image
-    image_io = io.BytesIO()
-    qr_image.save(image_io, 'PNG')
-    image_io.seek(0)
-
-    # Convert to an image that Tkinter can use
-    pil_image = Image.open(image_io)
+    output.seek(0)
+    pil_image = Image.open(output)
     data_matrix_image_tk = ImageTk.PhotoImage(pil_image)
 
     # Display the data matrix in the GUI
