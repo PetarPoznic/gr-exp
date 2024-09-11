@@ -28,8 +28,8 @@ def generate_code():
     # Display the generated number in the app
     number_label.config(text=f"PN: {user_input_1}\nSN: {unique_8_digit}")
 
-    # Generate Data Matrix code with segno
-    data_matrix = segno.make(final_number, error='H', micro=False)
+    # Generate Data Matrix code with segno (note the 'kind' parameter is set to 'datamatrix')
+    data_matrix = segno.make(final_number, kind='datamatrix')
     
     # Save the data matrix as a PNG file
     data_matrix.save("data_matrix.png", scale=10)
