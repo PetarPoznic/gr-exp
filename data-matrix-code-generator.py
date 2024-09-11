@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from pylibdmtx.pylibdmtx import encode
+from datamatrix import DataMatrix
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import time
@@ -29,12 +29,11 @@ def generate_code():
     # Display the generated number in the app
     number_label.config(text=f"PN: {user_input_1}\nSN: {unique_8_digit}")
 
-    # Generate Data Matrix code with pylibdmtx
-    data_matrix = encode(final_number.encode('utf-8'))
-    
+    # Generate Data Matrix code with datamatrix
+    data_matrix = DataMatrix(final_number)
+    image = data_matrix.render()
+
     # Convert the Data Matrix code to a PIL image
-    image = Image.open(io.BytesIO(data_matrix))
-    image = image.resize((200, 200))  # Resize the image if needed
     data_matrix_image_tk = ImageTk.PhotoImage(image)
     
     # Display the data matrix in the GUI
