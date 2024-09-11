@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-import zint
+import segno
 from PIL import Image, ImageTk
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -21,21 +21,21 @@ def generate_code():
     final_number = f'9347{user_input}{unique_8_digit}1234'  # Last part is a 4-digit placeholder (1234)
     unique_number_counter += 1
     
-    # Generate Data Matrix barcode
-    barcode = zint.Barcode(zint.Barcode.DATAMATRIX)
-    barcode.data = final_number.encode()
-    barcode_image = barcode.render()
+    # Generate Data Matrix barcode with segno
+    barcode = segno.make(final_number, error='H', micro=False)
+    
+    # Save the barcode as a PNG file
+    barcode.save("barcode.png", scale=10)
 
     # Convert barcode to a PIL image
-    barcode_image_pil = Image.fromarray(barcode_image)
+    barcode_image_pil = Image.open("barcode.png")
     barcode_image_tk = ImageTk.PhotoImage(barcode_image_pil)
     
     # Display barcode in the GUI
     barcode_label.config(image=barcode_image_tk)
     barcode_label.image = barcode_image_tk
     
-    # Save the barcode to file and prepare for printing
-    barcode_image_pil.save("barcode.png")
+    # Generate PDF for printing
     generate_pdf("barcode.png", final_number)
 
 def generate_pdf(barcode_path, number_text):
