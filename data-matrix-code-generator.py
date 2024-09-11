@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from barcode.writer import ImageWriter
-from barcode import generate
 from PIL import Image, ImageTk
+from datamatrix import DataMatrix
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import time
@@ -30,13 +29,11 @@ def generate_code():
     # Display the generated number in the app
     number_label.config(text=f"PN: {user_input_1}\nSN: {unique_8_digit}")
 
-    # Generate Data Matrix code using python-barcode
-    output = io.BytesIO()
-    generate('datamatrix', final_number, writer=ImageWriter(), output=output)
+    # Generate Data Matrix code with datamatrix
+    data_matrix = DataMatrix(final_number)
+    pil_image = data_matrix.render()
 
-    # Convert the Data Matrix code to a PIL image
-    output.seek(0)
-    pil_image = Image.open(output)
+    # Convert the Data Matrix code to a Tkinter-compatible image
     data_matrix_image_tk = ImageTk.PhotoImage(pil_image)
 
     # Display the data matrix in the GUI
