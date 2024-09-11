@@ -1,10 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
-import segno
 from PIL import Image, ImageTk
+from pylibdmtx.pylibdmtx import encode
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import time
+import io
 
 def generate_code():
     user_input_1 = entry_1.get()
@@ -28,28 +29,26 @@ def generate_code():
     # Display the generated number in the app
     number_label.config(text=f"PN: {user_input_1}\nSN: {unique_8_digit}")
 
-    # Generate Data Matrix code with segno (note the 'kind' parameter is set to 'datamatrix')
-    data_matrix = segno.make(final_number, kind='datamatrix')
+    # Generate Data Matrix code with pylibdmtx
+    data_matrix = encode(final_number.encode('utf-8'))
     
-    # Save the data matrix as a PNG file
-    data_matrix.save("data_matrix.png", scale=10)
-
-    # Convert data matrix to a PIL image
-    data_matrix_image_pil = Image.open("data_matrix.png")
-    data_matrix_image_tk = ImageTk.PhotoImage(data_matrix_image_pil)
+    # Convert the Data Matrix code to a PIL image
+    image = Image.open(io.BytesIO(data_matrix))
+    image = image.resize((200, 200))  # Resize the image if needed
+    data_matrix_image_tk = ImageTk.PhotoImage(image)
     
     # Display the data matrix in the GUI
     barcode_label.config(image=data_matrix_image_tk)
     barcode_label.image = data_matrix_image_tk
     
     # Generate PDF for printing (optional)
-    generate_pdf("data_matrix.png", user_input_1, unique_8_digit)
+    generate_pdf(image, user_input_1, unique_8_digit)
 
-def generate_pdf(data_matrix_path, pn, sn):
+def generate_pdf(image, pn, sn):
     c = canvas.Canvas("data_matrix_print.pdf", pagesize=letter)
     c.drawString(100, 750, f"PN: {pn}")
     c.drawString(100, 730, f"SN: {sn}")
-    c.drawImage(data_matrix_path, 100, 600, width=200, height=200)
+    c.drawInlineImage(image, 100, 600, width=200, height=200)  # Embed the image in the PDF
     c.showPage()
     c.save()
 
